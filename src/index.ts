@@ -2,13 +2,16 @@ import fs from 'fs';
 import path from 'path';
 
 import {
+  ANTHROPIC_MODEL,
   ASSISTANT_NAME,
+  FEISHU_APP_ID,
+  FEISHU_APP_SECRET,
   IDLE_TIMEOUT,
   MAIN_GROUP_FOLDER,
   POLL_INTERVAL,
   TRIGGER_PATTERN,
 } from './config.js';
-import { WhatsAppChannel } from './channels/whatsapp.js';
+import { FeishuChannel } from './channels/feishu.js';
 import {
   ContainerOutput,
   runContainerAgent,
@@ -51,7 +54,6 @@ let registeredGroups: Record<string, RegisteredGroup> = {};
 let lastAgentTimestamp: Record<string, string> = {};
 let messageLoopRunning = false;
 
-let whatsapp: WhatsAppChannel;
 const channels: Channel[] = [];
 const queue = new GroupQueue();
 
@@ -299,6 +301,7 @@ async function runAgent(
         chatJid,
         isMain,
         assistantName: ASSISTANT_NAME,
+        model: ANTHROPIC_MODEL,
       },
       (proc, containerName) =>
         queue.registerProcess(chatJid, proc, containerName, group.folder),
@@ -474,10 +477,14 @@ async function main(): Promise<void> {
     registeredGroups: () => registeredGroups,
   };
 
-  // Create and connect channels
-  whatsapp = new WhatsAppChannel(channelOpts);
-  channels.push(whatsapp);
-  await whatsapp.connect();
+  // Create and connect Feishu channel
+  const feishu = new FeishuChannel({
+    appId: FEISHU_APP_ID,
+    appSecret: FEISHU_APP_SECRET,
+    ...channelOpts,
+  });
+  channels.push(feishu);
+  await feishu.connect();
 
   // Start subsystems (independently of connection handler)
   startSchedulerLoop({
@@ -504,8 +511,7 @@ async function main(): Promise<void> {
     },
     registeredGroups: () => registeredGroups,
     registerGroup,
-    syncGroupMetadata: (force) =>
-      whatsapp?.syncGroupMetadata(force) ?? Promise.resolve(),
+    syncGroupMetadata: () => Promise.resolve(), // Not needed for Feishu
     getAvailableGroups,
     writeGroupsSnapshot: (gf, im, ag, rj) =>
       writeGroupsSnapshot(gf, im, ag, rj),
