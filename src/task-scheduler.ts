@@ -3,6 +3,7 @@ import { CronExpressionParser } from 'cron-parser';
 import fs from 'fs';
 
 import {
+  ANTHROPIC_MODEL,
   ASSISTANT_NAME,
   MAIN_GROUP_FOLDER,
   SCHEDULER_POLL_INTERVAL,
@@ -143,6 +144,7 @@ async function runTask(
         isMain,
         isScheduledTask: true,
         assistantName: ASSISTANT_NAME,
+        model: ANTHROPIC_MODEL,
       },
       (proc, containerName) =>
         deps.onProcess(task.chat_jid, proc, containerName, task.group_folder),

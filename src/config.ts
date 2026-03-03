@@ -6,13 +6,29 @@ import { readEnvFile } from './env.js';
 // Read config values from .env (falls back to process.env).
 // Secrets are NOT read here — they stay on disk and are loaded only
 // where needed (container-runner.ts) to avoid leaking to child processes.
-const envConfig = readEnvFile(['ASSISTANT_NAME', 'ASSISTANT_HAS_OWN_NUMBER']);
+const envConfig = readEnvFile([
+  'ASSISTANT_NAME',
+  'ASSISTANT_HAS_OWN_NUMBER',
+  'FEISHU_APP_ID',
+  'FEISHU_APP_SECRET',
+  'ANTHROPIC_MODEL',
+]);
 
 export const ASSISTANT_NAME =
-  process.env.ASSISTANT_NAME || envConfig.ASSISTANT_NAME || 'Andy';
+  process.env.ASSISTANT_NAME || envConfig.ASSISTANT_NAME || '小C';
 export const ASSISTANT_HAS_OWN_NUMBER =
   (process.env.ASSISTANT_HAS_OWN_NUMBER ||
     envConfig.ASSISTANT_HAS_OWN_NUMBER) === 'true';
+
+export const ANTHROPIC_MODEL =
+  process.env.ANTHROPIC_MODEL || envConfig.ANTHROPIC_MODEL || undefined;
+
+// Feishu configuration
+export const FEISHU_APP_ID =
+  process.env.FEISHU_APP_ID || envConfig.FEISHU_APP_ID || '';
+export const FEISHU_APP_SECRET =
+  process.env.FEISHU_APP_SECRET || envConfig.FEISHU_APP_SECRET || '';
+
 export const POLL_INTERVAL = 2000;
 export const SCHEDULER_POLL_INTERVAL = 60000;
 
