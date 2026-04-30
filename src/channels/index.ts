@@ -55,3 +55,6 @@ import './whatsapp.js';
 
 // emacs (native HTTP bridge, no Chat SDK)
 // import './emacs.js';
+
+// feishu (native, WebSocket long-connection — no Chat SDK)
+import './feishu.js';
